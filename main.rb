@@ -1,7 +1,7 @@
 class TreeNode
   attr_accessor :content, :right, :left
   require 'pry'
-  OP_PRIORITY = { "+" => 0, "-" => 0, "*" => 1, "/" => 1}
+  OP_PRIORITY = { "+" => 0, "-" => 0, "*" => 1, "/" => 1, "(" => 2, ")" => 2}
   OPERATORS = ['+', '-', '/', '*']
   OP_FUNCTION = {
       "+" => lambda {|x, y| x + y},
@@ -15,7 +15,9 @@ class TreeNode
   end
 
   def content=(content)
-    @content = if OPERATORS.include?(content)
+    @content = if OPERATORS.include?(content) ||
+              content == '(' ||
+              content == ')'
       content
     else
       content.to_f
@@ -26,17 +28,12 @@ class TreeNode
     if self.leaf?
       content
     else
-      binding.pry
       OP_FUNCTION[@content].call(@left.execute, @right.execute)
     end  
   end
 
   def leaf?
     right == nil && left == nil
-  end
-
-  def operator?(item)
-    OP_PRIORITY.has_key?(item)
   end
 
   def parse(formula)
@@ -46,10 +43,13 @@ class TreeNode
                            .gsub(/([\(\)])/,' \1 ')
                            .split(/\s+/)
 
+
     formula_array.each do |formula_item|
       if OPERATORS.include? formula_item
-        stack_it(operator_stack, node_stack) until operator_stack.empty? ||
-                                                    operator_stack.last == '('
+        stack_it(operator_stack, node_stack) until (operator_stack.empty? ||
+                                                    operator_stack.last == '(' ||
+                                                    OP_PRIORITY[operator_stack.last.content] < OP_PRIORITY[formula_item])
+
         operator_stack << TreeNode.new(formula_item)
       elsif formula_item == '('
         operator_stack << TreeNode.new(formula_item)
@@ -72,7 +72,7 @@ class TreeNode
   end
 
   def stack_it(operator_stack, node_stack)
-    #binding.pry
+
     temp = operator_stack.pop
     temp.right = node_stack.pop
     temp.left = node_stack.pop

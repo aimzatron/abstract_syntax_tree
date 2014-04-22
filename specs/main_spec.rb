@@ -40,7 +40,7 @@ require './main'
       expect(op_node.left).to eq left_node
     end
 
-    xit "executes the math" do
+    it "executes the math" do
       expect(op_node.execute).to eq 3.0
     end
 
@@ -48,7 +48,7 @@ require './main'
       expect(left_node.leaf?).to be_true
     end
 
-    xit "executes more complex math" do
+    it "executes more complex math" do
       complex_root = TreeNode.new('-')
       complex_root.left = TreeNode.new(10)
       complex_root.right = op_node
@@ -57,7 +57,7 @@ require './main'
 
     describe '.parse' do
 
-      xit "parses simple mathematical expressions into a tree" do
+      it "parses simple mathematical expressions into a tree" do
         simple_node_starter = TreeNode.new('1 + 2')
         simple_node = simple_node_starter.parse('1 + 2')
 
@@ -69,14 +69,13 @@ require './main'
       it "parses complex math expressions into a tree" do
         complex_node_starter = TreeNode.new('10 - (1 * 2)')
         complex_node = complex_node_starter.parse('10 - (1 * 2)')
-        binding.pry
 
         expect(complex_node.content).to eq '-'
         expect(complex_node.left.content).to eq 10.0
 
         expect(complex_node.right.content).to eq '*'
-        expect(complex_node.right.left.content).to eq 2.0
-        expect(complex_node.right.right.content).to eq 1.0
+        expect(complex_node.right.right.content).to eq 2.0
+        expect(complex_node.right.left.content).to eq 1.0
         expect(complex_node.execute).to eq 8.0
       end
     end
