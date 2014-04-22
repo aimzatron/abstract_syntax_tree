@@ -1,8 +1,14 @@
 class TreeNode
   attr_accessor :content, :right, :left
   require 'pry'
-  OP_PRIORITY = {"+" => 0, "-" => 0, "*" => 1, "/" => 1}
-  OPERATORS = ['+', '-', '/','*']
+  OP_PRIORITY = { "+" => 0, "-" => 0, "*" => 1, "/" => 1}
+  OPERATORS = ['+', '-', '/', '*']
+  OP_FUNCTION = {
+      "+" => lambda {|x, y| x + y},
+      "-" => lambda {|x, y| x - y},
+      "*" => lambda {|x, y| x * y},
+      "/" => lambda {|x, y| x / y}
+  }
 
   def initialize(content)
     self.content = content
@@ -19,15 +25,18 @@ class TreeNode
   def execute
     if self.leaf?
       content
-    elsif @right.content == 0.0
-      eval("#{@right.left.content} #{@content} #{@right.right.execute}")
     else
-      eval("#{@left.execute} #{@content} #{@right.execute}")
+      binding.pry
+      OP_FUNCTION[@content].call(@left.execute, @right.execute)
     end  
   end
 
   def leaf?
     right == nil && left == nil
+  end
+
+  def operator?(item)
+    OP_PRIORITY.has_key?(item)
   end
 
   def parse(formula)
@@ -40,12 +49,11 @@ class TreeNode
     formula_array.each do |formula_item|
       if OPERATORS.include? formula_item
         stack_it(operator_stack, node_stack) until operator_stack.empty? ||
-                                                    operator_stack.last == '(' ||
-                                                    OP_PRIORITY[operator_stack.last.content] == nil ||
-                                                    OP_PRIORITY[operator_stack.last.content] < OP_PRIORITY[formula_item]
+                                                    operator_stack.last == '('
         operator_stack << TreeNode.new(formula_item)
       elsif formula_item == '('
         operator_stack << TreeNode.new(formula_item)
+        operator_stack.pop
       elsif formula_item == ')'
         while operator_stack.last != '(' && !operator_stack.empty?
           stack_it(operator_stack, node_stack)
@@ -64,6 +72,7 @@ class TreeNode
   end
 
   def stack_it(operator_stack, node_stack)
+    #binding.pry
     temp = operator_stack.pop
     temp.right = node_stack.pop
     temp.left = node_stack.pop
