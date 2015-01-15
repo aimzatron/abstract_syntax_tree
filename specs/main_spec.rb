@@ -11,7 +11,7 @@ require './main'
     end
 
     it "is a tree" do
-      expect(TreeNode.new('1')).to be_true
+      expect(TreeNode.new('1')).to be_truthy
     end
 
     it "stores operators" do
@@ -45,7 +45,7 @@ require './main'
     end
 
     it "knows if it's a leaf" do
-      expect(left_node.leaf?).to be_true
+      expect(left_node.leaf?).to be_truthy
     end
 
     it "executes more complex math" do
